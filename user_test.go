@@ -10,7 +10,7 @@ import (
 func TestUser(t *testing.T) {
 	assert := assert.New(t)
 
-	c := coinbase.NewClient(secret, key)
+	c := coinbase.NewAPIKeyClient(secret, key)
 	assert.NotNil(c)
 
 	user, err := c.User()

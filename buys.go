@@ -30,7 +30,7 @@ func (a Account) Buys(p ...PaginationParams) *BuyIterator {
 type BuyIterator struct {
 	pageInfo  *iterator.PageInfo
 	nextFunc  func() error
-	c         *Client
+	c         *client
 	params    []PaginationParams
 	accountID string
 	firstCall bool

@@ -11,7 +11,7 @@ import (
 func TestAccountsNext(t *testing.T) {
 	assert := assert.New(t)
 
-	c := coinbase.NewClient(secret, key)
+	c := coinbase.NewAPIKeyClient(secret, key)
 	assert.NotNil(c)
 
 	it := c.Accounts()
@@ -31,7 +31,7 @@ loop:
 
 func TestAccountsPager(t *testing.T) {
 	assert := assert.New(t)
-	c := coinbase.NewClient(secret, key)
+	c := coinbase.NewAPIKeyClient(secret, key)
 	assert.NotNil(c)
 
 	it := c.Accounts()
@@ -54,7 +54,7 @@ func TestAccountsPager(t *testing.T) {
 func TestAccount(t *testing.T) {
 	assert := assert.New(t)
 
-	c := coinbase.NewClient(secret, key)
+	c := coinbase.NewAPIKeyClient(secret, key)
 	assert.NotNil(c)
 
 	account, err := c.Account("d27743b6-fb0a-593e-82ab-fec85f0746e2")

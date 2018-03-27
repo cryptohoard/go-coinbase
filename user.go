@@ -39,7 +39,7 @@ type userResp struct {
 	Data User `json:"data"`
 }
 
-func (c *Client) User() (*User, error) {
+func (c *client) User() (*User, error) {
 	r := userResp{}
 	_, err := c.Request(http.MethodGet, userURL, nil, &r)
 	return &r.Data, err

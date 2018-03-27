@@ -43,7 +43,7 @@ func (a Account) Transactions(p ...PaginationParams) *TransactionIterator {
 type TransactionIterator struct {
 	pageInfo  *iterator.PageInfo
 	nextFunc  func() error
-	c         *Client
+	c         *client
 	params    []PaginationParams
 	accountID string
 	firstCall bool

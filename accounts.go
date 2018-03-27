@@ -13,7 +13,7 @@ const (
 	accountsURL = "/accounts"
 )
 
-func (c *Client) Accounts(p ...PaginationParams) *AccountIterator {
+func (c *client) Accounts(p ...PaginationParams) *AccountIterator {
 	it := &AccountIterator{
 		c:         c,
 		params:    p,
@@ -30,7 +30,7 @@ func (c *Client) Accounts(p ...PaginationParams) *AccountIterator {
 type AccountIterator struct {
 	pageInfo  *iterator.PageInfo
 	nextFunc  func() error
-	c         *Client
+	c         *client
 	params    []PaginationParams
 	firstCall bool
 	r         accountsResp
@@ -101,7 +101,7 @@ func (it *AccountIterator) Next() (Account, error) {
 }
 
 type Account struct {
-	c       *Client
+	c       *client
 	Balance struct {
 		Amount   string `json:"amount"`
 		Currency string `json:"currency"`
@@ -133,7 +133,7 @@ type accountResp struct {
 	Data Account `json:"data"`
 }
 
-func (c *Client) Account(ID string) (Account, error) {
+func (c *client) Account(ID string) (Account, error) {
 	r := accountResp{}
 	_, err := c.Request(http.MethodGet, accountsURL+"/"+ID, nil, &r)
 	if err != nil {

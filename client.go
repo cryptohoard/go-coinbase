@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -15,54 +14,19 @@ const (
 	coinbaseAPIVerDate = "2017-12-16"
 )
 
-type Client struct {
-	BaseURL    string
-	Secret     string
-	Key        string
-	HttpClient *http.Client
+type client struct {
+	BaseURL      string
+	secret       string
+	key          string
+	httpClient   *http.Client
+	oauth        bool
+	clientID     string
+	clientSecret string
+	redirectURL  string
+	oauthToken   string
 }
 
-func NewClient(secret, key string) *Client {
-	return &Client{
-		BaseURL: "https://api.coinbase.com",
-		Secret:  secret,
-		Key:     key,
-		HttpClient: &http.Client{
-			Timeout: 15 * time.Second,
-		},
-	}
-}
-
-// Headers generates a map that can be used as headers to authenticate a request
-func (c *Client) Headers(
-	method string,
-	url string,
-	timestamp string,
-	data string,
-) (map[string]string, error) {
-	h := make(map[string]string)
-	h["CB-VERSION"] = coinbaseAPIVerDate
-	h["CB-ACCESS-KEY"] = c.Key
-	h["CB-ACCESS-TIMESTAMP"] = timestamp
-
-	message := fmt.Sprintf(
-		"%s%s%s%s",
-		timestamp,
-		method,
-		url,
-		data,
-	)
-
-	sig, err := generateSig(message, c.Secret)
-	if err != nil {
-		return nil, err
-	}
-	h["CB-ACCESS-SIGN"] = sig
-
-	return h, nil
-}
-
-func (c *Client) Request(
+func (c *client) Request(
 	method string,
 	url string,
 	params interface{},
@@ -92,12 +56,22 @@ func (c *Client) Request(
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("User-Agent", "griphook 1.0")
 
-	h, err := c.Headers(method, coinbaseAPIVer+url, timestamp, string(data))
+	var h map[string]string
+	if c.oauth {
+		h, err = c.oauthHeaders()
+	} else {
+		h, err = c.apiKeyHeaders(
+			method,
+			coinbaseAPIVer+url,
+			timestamp,
+			string(data),
+		)
+	}
 	for k, v := range h {
-		req.Header.Add(strings.ToUpper(k), v)
+		req.Header.Add(k, v)
 	}
 
-	res, err = c.HttpClient.Do(req)
+	res, err = c.httpClient.Do(req)
 	if err != nil {
 		return res, err
 	}

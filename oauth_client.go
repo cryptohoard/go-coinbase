@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -15,6 +16,7 @@ type OAuthClient struct {
 func NewOAuthClient(clientID, clientSecret, redirectURL string) *OAuthClient {
 	return &OAuthClient{
 		&client{
+			BaseURL:      "https://api.coinbase.com",
 			clientID:     clientID,
 			clientSecret: clientSecret,
 			redirectURL:  redirectURL,
@@ -27,42 +29,32 @@ func NewOAuthClient(clientID, clientSecret, redirectURL string) *OAuthClient {
 }
 
 func (o *OAuthClient) CreateAuthorizeUrl(scope []string, state string) string {
-	url := "https://www.coinbase.com/oauth/authorize"
+	path := "https://www.coinbase.com/oauth/authorize"
 
-	var params []string
+	v := url.Values{}
 
-	params = append(params, "response_type=code")
+	v.Set("response_type", "code")
 
 	if o.clientID != "" {
-		params = append(params, "client_id="+o.clientID)
+		v.Add("client_id", o.clientID)
 	}
 
 	if o.redirectURL != "" {
-		params = append(params, "redirect_uri="+o.redirectURL)
+		v.Add("redirect_uri", o.redirectURL)
 	}
 
 	if state != "" {
-		params = append(params, "state="+state)
+		v.Add("state", state)
 	}
+
+	v.Add("account", "all")
 
 	if len(scope) > 0 {
 		scopeStr := strings.Join(scope, ",")
-		params = append(params, "scope"+scopeStr)
+		v.Add("scope", scopeStr)
 	}
 
-	if len(params) > 0 {
-		url += "?"
-
-		for i, p := range params {
-			if i > 0 {
-				url += "&"
-			}
-
-			url += p
-		}
-	}
-
-	return url
+	return path + "?" + v.Encode()
 }
 
 func (o *OAuthClient) SetToken(token string) {
